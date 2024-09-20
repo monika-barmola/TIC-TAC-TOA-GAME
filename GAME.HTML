@@ -4,31 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe Game</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+        }
+        h1 {
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            grid-template-rows: repeat(3, 120px);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 120px;
+            height: 120px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            font-size: 2.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .cell:hover {
+            background-color: #ffda79;
+            transform: scale(1.1);
+        }
+        .cell.x {
+            color: #ff6f61;
+        }
+        .cell.o {
+            color: #6f86d6;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        select, button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            margin: 5px;
+            background-color: #4d9de0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
+        }
+        select:hover, button:hover {
+            background-color: #3273a3;
+        }
+        button:active {
+            background-color: #27476e;
+        }
+    </style>
 </head>
 <body>
+
     <h1>Tic-Tac-Toe</h1>
-    <div class="game-board">
-        <div class="cell" id="cell-0" data-cell></div>
-        <div class="cell" id="cell-1" data-cell></div>
-        <div class="cell" id="cell-2" data-cell></div>
-        <div class="cell" id="cell-3" data-cell></div>
-        <div class="cell" id="cell-4" data-cell></div>
-        <div class="cell" id="cell-5" data-cell></div>
-        <div class="cell" id="cell-6" data-cell></div>
-        <div class="cell" id="cell-7" data-cell></div>
-        <div class="cell" id="cell-8" data-cell></div>
+
+    <div class="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
     </div>
+
     <div class="controls">
         <select id="difficulty">
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
         </select>
-        <h2 class="game-status" id="game-status">Your turn</h2>
-        <button id="restartBtn">Restart Game</button>
+        <button id="restart">Restart Game</button>
     </div>
 
-    <script src="script.js"></script>
+    <script src="SCRIPT.JS"></script>
 </body>
 </html>
