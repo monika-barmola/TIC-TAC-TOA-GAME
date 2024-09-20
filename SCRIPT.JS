@@ -1,11 +1,10 @@
-const cells = document.querySelectorAll("[data-cell]");
-const gameStatus = document.getElementById("game-status");
-const restartBtn = document.getElementById("restartBtn");
-const difficultySelect = document.getElementById("difficulty");
-let currentPlayer = "X"; // Player
+const cells = document.querySelectorAll('.cell');
+const restartBtn = document.getElementById('restart');
+const difficultySelect = document.getElementById('difficulty');
 let board = ["", "", "", "", "", "", "", "", ""];
+let currentPlayer = "X";
 let gameActive = true;
-let difficulty = "easy";
+let difficulty = 'easy';
 
 const winningCombinations = [
     [0, 1, 2],
@@ -18,88 +17,62 @@ const winningCombinations = [
     [2, 4, 6]
 ];
 
-// Handle player click on cell
+// Handle player click
 function handleClick(e) {
-    const cell = e.target;
-    const cellIndex = Array.from(cells).indexOf(cell);
+    const index = e.target.getAttribute('data-index');
 
-    if (board[cellIndex] !== "" || !gameActive || currentPlayer !== "X") {
+    if (board[index] !== "" || !gameActive) {
         return;
     }
 
-    updateBoard(cell, cellIndex, "X"); // Player move
-    checkWinner();
+    board[index] = currentPlayer;
+    e.target.textContent = currentPlayer;
+    e.target.classList.add(currentPlayer.toLowerCase());
 
-    if (gameActive) {
-        setTimeout(computerPlay, 500);  // Delay for computer move
+    if (checkGameResult()) {
+        endGame(checkGameResult());
+        return;
+    }
+
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+    if (currentPlayer === "O") {
+        computerMove();
     }
 }
 
-// Update board after a move
-function updateBoard(cell, index, player) {
-    board[index] = player;
-    cell.textContent = player;
-    cell.classList.add(player.toLowerCase());
-}
-
-// Check for winner or draw
-function checkWinner() {
-    let roundWon = false;
-
-    for (let i = 0; i < winningCombinations.length; i++) {
-        const [a, b, c] = winningCombinations[i];
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            roundWon = true;
-            break;
-        }
-    }
-
-    if (roundWon) {
-        gameStatus.textContent = `${currentPlayer === "X" ? "YOU" : "COMPUTER"} wins!`;
-        gameActive = false;
-    } else if (!board.includes("")) {
-        gameStatus.textContent = "It's a draw!";
-        gameActive = false;
-    } else {
-        currentPlayer = currentPlayer === "X" ? "O" : "X";
-        gameStatus.textContent = currentPlayer === "X" ? "Your turn" : "Computer's turn";
-    }
-}
-
-// Computer plays its turn based on difficulty
-function computerPlay() {
+// Computer's move based on difficulty
+function computerMove() {
     let move;
-
-    switch (difficulty) {
-        case "easy":
-            move = getRandomMove();
-            break;
-        case "medium":
-            move = getBlockingMove() || getRandomMove();
-            break;
-        case "hard":
-            move = getBestMove();
-            break;
+    if (difficulty === 'easy') {
+        move = getRandomMove();
+    } else if (difficulty === 'medium') {
+        move = getBlockingMove() || getRandomMove();
+    } else {
+        move = getBestMove();
     }
 
-    if (move !== undefined && gameActive) {
-        const cellElement = cells[move];
-        updateBoard(cellElement, move, "O"); // Computer move
-        checkWinner();
+    board[move] = "O";
+    cells[move].textContent = "O";
+    cells[move].classList.add('o');
+
+    if (checkGameResult()) {
+        endGame(checkGameResult());
     }
+
+    currentPlayer = "X";
 }
 
-// Get a random available move
+// Get random move
 function getRandomMove() {
-    const availableCells = board.map((val, index) => val === "" ? index : null).filter(val => val !== null);
-    return availableCells[Math.floor(Math.random() * availableCells.length)];
+    let availableMoves = board.map((val, idx) => val === "" ? idx : null).filter(val => val !== null);
+    return availableMoves[Math.floor(Math.random() * availableMoves.length)];
 }
 
-// Get the best move using minimax algorithm
+// Minimax algorithm for hard difficulty
 function getBestMove() {
     let bestScore = -Infinity;
     let move;
-
     for (let i = 0; i < board.length; i++) {
         if (board[i] === "") {
             board[i] = "O";
@@ -111,16 +84,15 @@ function getBestMove() {
             }
         }
     }
-
     return move;
 }
 
-// Minimax algorithm to calculate the best move
 function minimax(board, depth, isMaximizing) {
-    const scores = { X: -1, O: 1, tie: 0 };
     let result = checkGameResult();
     if (result !== null) {
-        return scores[result];
+        if (result === "O") return 10;
+        if (result === "X") return -10;
+        return 0;
     }
 
     if (isMaximizing) {
@@ -160,7 +132,25 @@ function checkGameResult() {
     return board.includes("") ? null : "tie";
 }
 
-// Get the move that blocks the player
+// End the game
+function endGame(result) {
+    let message;
+    if (result === "X") {
+        message = "You Win!";
+    } else if (result === "O") {
+        message = "Computer Wins!";
+    } else {
+        message = "It's a Tie!";
+    }
+
+    // Store result in localStorage and navigate to result page
+    localStorage.setItem('gameResult', message);
+    setTimeout(() => {
+        window.location.href = "win.html";
+    }, 500);
+}
+
+// Get blocking move in medium difficulty
 function getBlockingMove() {
     for (let i = 0; i < board.length; i++) {
         if (board[i] === "") {
@@ -175,23 +165,18 @@ function getBlockingMove() {
     return null;
 }
 
-// Restart the game
+// Restart game
 function restartGame() {
-    currentPlayer = "X";
     board = ["", "", "", "", "", "", "", "", ""];
-    gameActive = true;
-    gameStatus.textContent = "Your turn";
     cells.forEach(cell => {
         cell.textContent = "";
-        cell.classList.remove("x", "o");
+        cell.classList.remove('x', 'o');
     });
+    currentPlayer = "X";
+    gameActive = true;
 }
 
-// Set difficulty level on change
-difficultySelect.addEventListener("change", (e) => {
-    difficulty = e.target.value;
-});
-
 // Add event listeners
-cells.forEach(cell => cell.addEventListener("click", handleClick));
-restartBtn.addEventListener("click", restartGame);
+cells.forEach(cell => cell.addEventListener('click', handleClick));
+restartBtn.addEventListener('click', restartGame);
+difficultySelect.addEventListener('change', (e) => difficulty = e.target.value);
